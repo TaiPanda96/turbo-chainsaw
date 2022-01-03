@@ -59,6 +59,7 @@ try {
 // Listen to LocalHost:5000/
 var server = app.listen(port, () => {
     console.log(`Server is running on port: ${port}`);
+    console.log(`This is a test update push to port: ${port}`);
 });
 
 
