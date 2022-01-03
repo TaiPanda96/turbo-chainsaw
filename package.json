@@ -20,8 +20,11 @@
   "homepage": "https://github.com/TaiPanda96/turbo-chainsaw#readme",
   "dependencies": {
     "axios": "^0.24.0",
+    "dotenv": "^10.0.0",
     "express": "^4.17.2",
     "express-fileupload": "^1.2.1",
+    "mongodb": "^4.2.2",
+    "mongoose": "^6.1.4",
     "nodemon": "^2.0.15"
   }
 }
