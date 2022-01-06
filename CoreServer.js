@@ -2,6 +2,7 @@
 require('dotenv').config();
 
 // Main Imports
+const fs = require("fs");
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require('body-parser');
@@ -32,25 +33,42 @@ app.use(bodyParser.json());
 app.use(fileUpload());
 app.use(express.static(__dirname + '/public'));
 
-// Error Logging
-process.on('unhandledRejection', (reason, promise) => {
-    console.log('Unhandled Rejection at:', promise, 'reason:', reason);
-    // Application specific logging, throwing an error, or other logic here
-});
-
 // DocumentDB Connection
-const uri = process.env.AWS_URI;
-console.log(uri)
-try {
-    mongoose.connect(uri,  {
-        useNewUrlParser: true,
-        useCreateIndex: true,
-        useUnifiedTopology: true
-    }, () =>
-       console.log("DocumentDB Connection Established!"));
- } catch (error) {
-    console.log("could not connect");
- }
+if (process.env.INFRASTRUCTURE === "AWS") {
+    const path = require('path');
+    const fs   = require("fs")
+    //let dbURI      = 'mongodb://utradeaProduction:sttMTL111519@utradea-production-historical.cluster-cfy17jkuwodi.us-east-2a.docdb.amazonaws.com:27017/utradea-production-historical?tls=true&retryWrites=false&authSource=admin'
+    const filePath = path.join(__dirname, 'rds-combined-ca-bundle.pem')
+    mongoose.connect(process.env.AWS_URI, {
+        ssl             : true,
+        sslValidate     : false,
+        useUnifiedTopology: true,
+        useNewUrlParser : true,
+        useCreateIndex  : true,
+        useFindAndModify: false,
+        sslCA: filePath
+    });
+    const connection = mongoose.connection;
+    connection.once('open', () => {
+        console.log("DocumentDB Connection Established");
+    }).catch(err => console.log(err.reason, err.type));
+    console.log(mongoose.connection.client.topology.s.servers);
+
+} else {
+    const uri = process.env.ATLAS_URI
+    // MongoDB Connection
+    mongoose.connect(uri,
+        {
+            useNewUrlParser: true,
+            useCreateIndex: true,
+            useUnifiedTopology: true
+        }
+    )
+    const connection = mongoose.connection;
+    connection.once('open', () => {
+        console.log("MongoDB Connection Established");
+    }).catch(err => console.log(err));
+}
 
  app.get('/', (req, res) => {
     res.send(`Welcome to tai's server running on port: ${port}`);
@@ -59,9 +77,5 @@ try {
 // Listen to LocalHost:5000/
 var server = app.listen(port, () => {
     console.log(`Server is running on port: ${port}`);
-    console.log(`This is a test update push to port: ${port}`);
-    console.log(`This is a test update push to port: ${port}`);
-    console.log(`This is a test update push to port: ${port}`);
 });
-
 
