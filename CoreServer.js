@@ -37,7 +37,6 @@ app.use(express.static(__dirname + '/public'));
 if (process.env.INFRASTRUCTURE === "AWS") {
     const path = require('path');
     const fs   = require("fs")
-    //let dbURI      = 'mongodb://utradeaProduction:sttMTL111519@utradea-production-historical.cluster-cfy17jkuwodi.us-east-2a.docdb.amazonaws.com:27017/utradea-production-historical?tls=true&retryWrites=false&authSource=admin'
     const filePath = path.join(__dirname, 'rds-combined-ca-bundle.pem')
     mongoose.connect(process.env.AWS_URI, {
         ssl             : true,
