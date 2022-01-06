@@ -37,36 +37,20 @@ app.use(express.static(__dirname + '/public'));
 if (process.env.INFRASTRUCTURE === "AWS") {
     const path = require('path');
     const fs   = require("fs")
-    const filePath = path.join(__dirname, 'rds-combined-ca-bundle.pem')
-    mongoose.connect(process.env.AWS_URI, {
-        ssl             : true,
-        sslValidate     : false,
-        useUnifiedTopology: true,
-        useNewUrlParser : true,
-        useCreateIndex  : true,
-        useFindAndModify: false,
-        sslCA: filePath
-    });
-    const connection = mongoose.connection;
-    connection.once('open', () => {
-        console.log("DocumentDB Connection Established");
-    }).catch(err => console.log(err.reason, err.type));
-    console.log(mongoose.connection.client.topology.s.servers);
-
-} else {
-    const uri = process.env.ATLAS_URI
-    // MongoDB Connection
-    mongoose.connect(uri,
+    const filePath = path.join(__dirname, 'rds-combined-ca-bundle.pem');
+    mongoose.connect(process.env.AWS_URI,
         {
-            useNewUrlParser: true,
-            useCreateIndex: true,
-            useUnifiedTopology: true
-        }
-    )
-    const connection = mongoose.connection;
-    connection.once('open', () => {
-        console.log("MongoDB Connection Established");
-    }).catch(err => console.log(err));
+            ssl             :   true,
+            sslValidate     :   false,
+            sslCA: filePath
+        },
+        async (err) => {
+            if(err) {
+                console.log(err);
+            } else {
+                console.log('DocumentDB Connection Established');
+            }
+        });
 }
 
  app.get('/', (req, res) => {
